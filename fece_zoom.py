@@ -39,12 +39,12 @@ cap = cv.VideoCapture(0)
 if not cap.isOpened():
     print("Cannot open camera")
     exit()
-while(True):
-    ret,frame = cap.read()
-    if not ret:
-        print("Can't receive frame (stream end?). Exiting ...")
-        break
-    print(frame)
-    cv.imshow("cap",frame)
+#while(True):
+ret,frame = cap.read()
+if not ret:
+   print("Can't receive frame (stream end?). Exiting ...")
+   exit()
+img = frame.copy()
+cv.imshow("cap",img)
 
-cap.release()
+#cap.release()
