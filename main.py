@@ -7,6 +7,7 @@ sys.path.append("../../..")
 from hopfieldnetwork import HopfieldNetwork
 from hopfieldnetwork import images2xi, plot_network_development, DATA_DIR
 import pathlib
+from PIL import Image
 
 timer = process_time()
 
