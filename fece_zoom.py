@@ -61,8 +61,9 @@ while (True):
     faceRects =getFaces(frame)
     faces =[]
     for f in faceRects:
+        faces.append(cv.resize(trimPhotoToRect(frame, f), (120, 120)))
         drawFaceRect(frame,f)
-        faces.append(cv.resize(trimPhotoToRect(frame, f),(120,120)))
+
 
 
     # gogoog ML here to frame if goodframe==true
@@ -70,7 +71,7 @@ while (True):
         out="aa"
         cv.putText(frame,out,(faceRects[face_id][0],faceRects[face_id][1]),cv.FONT_HERSHEY_COMPLEX_SMALL,1,(255,0, 0))
         #frame = faces[face_id]
-        
+
 
 
     screen.set_data(frame)
