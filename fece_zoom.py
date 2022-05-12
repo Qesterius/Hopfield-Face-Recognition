@@ -34,17 +34,19 @@ def drawFaceRect(img, rect):
     cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
     return img
 
+
 """ kurwa chcialem stestoewac funkcje powyzsze, ale nie chce mi sie kamerka zalaczyc"""
 cap = cv.VideoCapture(0)
+cv.startWindowThread()
 if not cap.isOpened():
     print("Cannot open camera")
     exit()
-#while(True):
-ret,frame = cap.read()
-if not ret:
-   print("Can't receive frame (stream end?). Exiting ...")
-   exit()
-img = frame.copy()
-cv.imshow("cap",img)
+while(True):
+    ret,frame = cap.read()
+    if not ret:
+       print("Can't receive frame (stream end?). Exiting ...")
+       exit()
+    img = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+    cv.imshow("cap",img)
 
 #cap.release()
