@@ -27,26 +27,25 @@ height = n
 
 # input_pattern = np.array(input_pattern)
 
-input_pattern1 = image2numpy_array("data/einstein.jpg", (120, 120)).flatten()
-input_pattern2 = image2numpy_array("data/dirac.jpg", (120, 120)).flatten()
-input_pattern3 = image2numpy_array("data/de_broglie.jpg", (120, 120)).flatten()
+einstein = image2numpy_array("data/einstein.jpg", (120, 120)).flatten()
+dirac = image2numpy_array("data/dirac.jpg", (120, 120)).flatten()
+de_broile = image2numpy_array("data/de_broglie.jpg", (120, 120)).flatten()
+# curie = image2numpy_array("data/curie.jpg", (120, 120)).flatten()
 
+input = [einstein, dirac, de_broile]
 
-
+half_dirac = np.copy(dirac)
+half_dirac[: int(N / 2)] = -1
 
 
 hopfield_network1 = HopfieldNetwork(N=N)
 
-hopfield_network1.train_pattern([])
+for i in input:
+    hopfield_network1.train_pattern(i)
 
-half_einstein = np.copy(input_pattern)
-half_einstein[: int(N / 2)] = -1
 
-hopfield_network1.set_initial_neurons_state(np.copy(half_einstein))
 
-data0 = Image.fromarray(np.reshape(input_pattern, (n, n)), mode='L')
-data0.save("input.png")
-print(hopfield_network1.S)
+hopfield_network1.set_initial_neurons_state(half_dirac)
 
 # data0 = Image.fromarray(np.reshape(hopfield_network1.S, (n, n)), mode='L')
 # data0.save("inside.png")
@@ -59,7 +58,7 @@ hopfield_network1.update_neurons(iterations=5, mode="async")
 
 print(hopfield_network1.S)
 print(np.sum(hopfield_network1.S))
+print(hamming_distance(hopfield_network1.S, de_broile))
 
 data = Image.fromarray(np.reshape(hopfield_network1.S, (n, n)), mode='L')
-
 data.save("result.png")
