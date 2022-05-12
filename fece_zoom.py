@@ -76,8 +76,9 @@ while True:
     faceRects = getFaces(frame)
     faces =[]
     for f in faceRects:
+        faces.append(cv.resize(trimPhotoToRect(frame, f), (120, 120)))
         drawFaceRect(frame,f)
-        faces.append(cv.resize(trimPhotoToRect(frame, f),(120,120)))
+
 
 
     # gogoog ML here to frame if goodframe==true
@@ -89,6 +90,7 @@ while True:
     for face in faces:
         match = detect(hopfieldNetwork, trainingData, face, size)
         print("matched with label: ", match)
+
 
 
     screen.set_data(frame)
