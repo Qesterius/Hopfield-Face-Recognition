@@ -2,9 +2,21 @@ import cv2
 import cv2 as cv
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+from hopfieldnetwork import *
+import cv2 as cv
+from hopfieldnetwork import HopfieldNetwork
+from os import listdir
+from os.path import isfile, join
+from training import train
+from detect import detect
 
 cascPath = "haarcascade_frontalface_default.xml"
-
+def init():
+    size = 120
+    directory = "data"
+    hopfieldnetwork = HopfieldNetwork(size**2)
+    pathList = [join(directory, f) for f in listdir(directory) if isfile(join(directory, f))]
+    return train(hopfieldnetwork, pathList, size), hopfieldnetwork, size
 
 def getFaces(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -51,14 +63,17 @@ img = frame
 screen = plt.imshow(img)
 plt.show()
 goodFrame = False
-while (True):
+
+trainingData, hopfieldNetwork, size = init()
+
+while True:
     ret, frame = cap.read()
 
     if not ret:
         print("Can't receive frame (stream end?). Exiting ...")
         exit()
 
-    faceRects =getFaces(frame)
+    faceRects = getFaces(frame)
     faces =[]
     for f in faceRects:
         drawFaceRect(frame,f)
@@ -70,7 +85,10 @@ while (True):
         out="aa"
         cv.putText(frame,out,(faceRects[face_id][0],faceRects[face_id][1]),cv.FONT_HERSHEY_COMPLEX_SMALL,1,(255,0, 0))
         #frame = faces[face_id]
-        
+
+    for face in faces:
+        match = detect(hopfieldNetwork, trainingData, face, size)
+        print("matched with label: ", match)
 
 
     screen.set_data(frame)

@@ -37,13 +37,10 @@ input = [einstein, dirac, de_broile]
 half_dirac = np.copy(dirac)
 half_dirac[: int(N / 2)] = -1
 
-
 hopfield_network1 = HopfieldNetwork(N=N)
 
 for i in input:
     hopfield_network1.train_pattern(i)
-
-
 
 hopfield_network1.set_initial_neurons_state(half_dirac)
 
