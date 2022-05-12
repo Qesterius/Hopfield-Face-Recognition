@@ -5,7 +5,7 @@ import numpy as np
 
 def getInput(n):
     hopfieldnetwork = HopfieldNetwork(filepath="path/to/file")
-    cap = cv. VideoCapture(n)
+    cap = cv.VideoCapture(n)
 
     while True:
 
