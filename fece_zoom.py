@@ -28,7 +28,7 @@ def trimPhotoToRect(img, rect):
     y = rect[1]
     w = rect[2]
     h = rect[3]
-    cropped = img[x:x + w, y:y + h]
+    cropped = img[ y:y + h,x:x + w]
     return cropped
 
 
@@ -47,19 +47,29 @@ if not cap.isOpened():
     print("Cannot open camera")
     exit()
 ret, frame = cap.read()
-img = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+img = frame
 screen = plt.imshow(img)
 plt.show()
-
+goodFrame = False
 while (True):
     ret, frame = cap.read()
+    faces =getFaces(frame)
+    for f in faces:
+        drawFaceRect(frame,f)
+    if len(faces)>0:
+        frame = trimPhotoToRect(frame,faces[0])
+        goodFrame = True
     if not ret:
         print("Can't receive frame (stream end?). Exiting ...")
         exit()
-    screen.set_data(cv.cvtColor(frame, cv.COLOR_BGR2GRAY))
+
+    # gogoog ML here to frame if goodframe==true
+
+
+    screen.set_data(frame)
     plt.pause(0.2)
     plt.draw()
-
+    goodFrame = False
     if cv.waitKey(1) == ord('q'):
         cv2.destroyAllWindows()
         screen.close()
