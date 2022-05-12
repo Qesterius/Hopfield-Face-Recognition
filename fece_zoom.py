@@ -53,17 +53,24 @@ plt.show()
 goodFrame = False
 while (True):
     ret, frame = cap.read()
-    faces =getFaces(frame)
-    for f in faces:
-        drawFaceRect(frame,f)
-    if len(faces)>0:
-        frame = trimPhotoToRect(frame,faces[0])
-        goodFrame = True
+
     if not ret:
         print("Can't receive frame (stream end?). Exiting ...")
         exit()
 
+    faceRects =getFaces(frame)
+    faces =[]
+    for f in faceRects:
+        drawFaceRect(frame,f)
+        faces.append(cv.resize(trimPhotoToRect(frame, f),(120,120)))
+
+
     # gogoog ML here to frame if goodframe==true
+    for face_id in range(len(faces)):
+        out="aa"
+        cv.putText(frame,out,(faceRects[face_id][0],faceRects[face_id][1]),cv.FONT_HERSHEY_COMPLEX_SMALL,1,(255,0, 0))
+        #frame = faces[face_id]
+        
 
 
     screen.set_data(frame)
