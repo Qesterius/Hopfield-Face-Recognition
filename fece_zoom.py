@@ -1,7 +1,7 @@
 import cv2
 import cv2 as cv
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
+
 from hopfieldnetwork import *
 import cv2 as cv
 from hopfieldnetwork import HopfieldNetwork
@@ -13,9 +13,9 @@ from detect import detect
 cascPath = "haarcascade_frontalface_default.xml"
 def init():
     size = 120
-    directory = "data"
+    directory = ["data/lukasz","data/kamil","data/mateusz"]
     hopfieldnetwork = HopfieldNetwork(size**2)
-    pathList = [join(directory, f) for f in listdir(directory) if isfile(join(directory, f))]
+    pathList = [join(dire, f) for dire in directory for f in listdir(dire) if isfile(join(dire, f))]
     return train(hopfieldnetwork, pathList, size), hopfieldnetwork, size
 
 def getFaces(img):
@@ -51,9 +51,11 @@ def drawFaceRect(img, rect):
     h = rect[3]
     cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
     return img
+
+
+
 plt.ion()
 
-""" kurwa chcialem stestoewac funkcje powyzsze, ale nie chce mi sie kamerka zalaczyc"""
 cap = cv.VideoCapture(0)
 if not cap.isOpened():
     print("Cannot open camera")
@@ -75,8 +77,12 @@ while True:
 
     faceRects = getFaces(frame)
     faces =[]
+    print(type(frame))
     for f in faceRects:
-        faces.append(cv.resize(trimPhotoToRect(frame, f), (120, 120)))
+        _p = cv.resize(trimPhotoToRect(frame, f), (120, 120))
+        _p = cv.cvtColor(_p, cv.COLOR_BGR2GRAY)
+        _ret, tresh = cv.threshold(_p,50,255,cv.THRESH_BINARY)
+        faces.append(tresh)
         drawFaceRect(frame,f)
 
 
@@ -87,7 +93,9 @@ while True:
         cv.putText(frame,out,(faceRects[face_id][0],faceRects[face_id][1]),cv.FONT_HERSHEY_COMPLEX_SMALL,1,(255,0, 0))
         #frame = faces[face_id]
 
+
     for face in faces:
+
         match = detect(hopfieldNetwork, trainingData, face, size)
         print("matched with label: ", match)
 

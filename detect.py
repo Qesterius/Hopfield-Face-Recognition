@@ -4,7 +4,7 @@ import numpy as np
 
 
 def convert(input, n):
-    return image2numpy_array(input, (n, n)).flatten()
+    return input.flatten()
 
 
 def detect(hopfieldNetwork, training_data, input, n):
