@@ -9,14 +9,29 @@ from os import listdir
 from os.path import isfile, join
 from training import train
 from detect import detect
+import numpy
 
+load = True
 cascPath = "haarcascade_frontalface_default.xml"
 def init():
-    size = 120
-    directory = ["data/lukasz","data/kamil","data/mateusz"]
-    hopfieldnetwork = HopfieldNetwork(size**2)
-    pathList = [join(dire, f) for dire in directory for f in listdir(dire) if isfile(join(dire, f))]
-    return train(hopfieldnetwork, pathList, size), hopfieldnetwork, size
+    hopfieldNet=[]
+    size=0
+    trained=[]
+    if not load:
+        size = 120
+        directory = ["data/lukasz","data/kamil","data/mateusz"]
+        hopfieldNet = HopfieldNetwork(size**2)
+        pathList = [join(dire, f) for dire in directory for inde, f in enumerate(listdir(dire)) if isfile(join(dire, f)) and inde < 4]
+        trained = train(hopfieldNet, pathList, size)
+        numpy.save("networks/data2.npy",trained)
+        numpy.save("networks/size2.npy",size)
+        hopfieldNet.save_network("networks/network2.npz")
+    else :
+        hopfieldNet = HopfieldNetwork(filepath="networks/network2.npz")
+        size = numpy.load("networks/size2.npy")
+        trained = numpy.load("networks/data2.npy")
+
+    return trained, hopfieldNet, size
 
 def getFaces(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -32,8 +47,8 @@ def getFaces(img):
     """
     displaying faces
     for (x, y, w, h) in faces:
-        cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)"""
-
+        cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    """
 
 def trimPhotoToRect(img, rect):
     x = rect[0]
@@ -89,20 +104,15 @@ while True:
 
     # gogoog ML here to frame if goodframe==true
     for face_id in range(len(faces)):
-        out="aa"
-        cv.putText(frame,out,(faceRects[face_id][0],faceRects[face_id][1]),cv.FONT_HERSHEY_COMPLEX_SMALL,1,(255,0, 0))
+        match = detect(hopfieldNetwork, trainingData, faces[face_id], size)
+        out=match
+
+        print("matched with label: ", match)
+        cv.putText(frame,str(out),(faceRects[face_id][0],faceRects[face_id][1]),cv.FONT_HERSHEY_COMPLEX_SMALL,1,(255,0, 0))
         #frame = faces[face_id]
 
-
-    for face in faces:
-
-        match = detect(hopfieldNetwork, trainingData, face, size)
-        print("matched with label: ", match)
-
-
-
     screen.set_data(frame)
-    plt.pause(0.2)
+    plt.pause(0.1)
     plt.draw()
     goodFrame = False
     if cv.waitKey(1) == ord('q'):

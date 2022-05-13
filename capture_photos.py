@@ -44,7 +44,7 @@ def getFaces(img):
 
 
 modes = ["lukasz", "kamil", "mateusz"]
-mode = modes[1]
+mode = modes[2]
 
 
 def savePhotos(photos):
@@ -88,6 +88,7 @@ def on_press(event):
         print("sFactor = ", mNeighbors)
     if event.key.lower() == 'c':
         startCapturing = True
+        print("saving")
     if event.key.lower() == 'q':
         savePhotos(gemby)
         cv2.destroyAllWindows()
