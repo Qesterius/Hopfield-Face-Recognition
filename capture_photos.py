@@ -55,7 +55,6 @@ def savePhotos(photos):
 
 plt.ion()
 
-""" kurwa chcialem stestoewac funkcje powyzsze, ale nie chce mi sie kamerka zalaczyc"""
 cap = cv.VideoCapture(0)
 if not cap.isOpened():
     print("Cannot open camera")

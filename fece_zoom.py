@@ -11,27 +11,31 @@ from training import train
 from detect import detect
 import numpy
 
-load = True
+load = False
 cascPath = "haarcascade_frontalface_default.xml"
+
+
 def init():
-    hopfieldNet=[]
-    size=0
-    trained=[]
+    hopfieldNet = []
+    size = 0
+    trained = []
     if not load:
         size = 120
-        directory = ["data/lukasz","data/kamil","data/mateusz"]
-        hopfieldNet = HopfieldNetwork(size**2)
-        pathList = [join(dire, f) for dire in directory for inde, f in enumerate(listdir(dire)) if isfile(join(dire, f)) and inde < 4]
+        directory = ["data/lukasz", "data/kamil", "data/mateusz"]
+        hopfieldNet = HopfieldNetwork(size ** 2)
+        pathList = [join(dire, f) for dire in directory for inde, f in enumerate(listdir(dire)) if
+                    isfile(join(dire, f)) and inde < 4]
         trained = train(hopfieldNet, pathList, size)
-        numpy.save("networks/data2.npy",trained)
-        numpy.save("networks/size2.npy",size)
+        numpy.save("networks/data2.npy", trained)
+        numpy.save("networks/size2.npy", size)
         hopfieldNet.save_network("networks/network2.npz")
-    else :
+    else:
         hopfieldNet = HopfieldNetwork(filepath="networks/network2.npz")
         size = numpy.load("networks/size2.npy")
         trained = numpy.load("networks/data2.npy")
 
     return trained, hopfieldNet, size
+
 
 def getFaces(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -50,12 +54,13 @@ def getFaces(img):
         cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
     """
 
+
 def trimPhotoToRect(img, rect):
     x = rect[0]
     y = rect[1]
     w = rect[2]
     h = rect[3]
-    cropped = img[ y:y + h,x:x + w]
+    cropped = img[y:y + h, x:x + w]
     return cropped
 
 
@@ -66,7 +71,6 @@ def drawFaceRect(img, rect):
     h = rect[3]
     cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
     return img
-
 
 
 plt.ion()
@@ -85,31 +89,33 @@ trainingData, hopfieldNetwork, size = init()
 
 while True:
     ret, frame = cap.read()
-
+    print(type(frame))
     if not ret:
         print("Can't receive frame (stream end?). Exiting ...")
         exit()
 
     faceRects = getFaces(frame)
-    faces =[]
-    print(type(frame))
+    faces = []
+
     for f in faceRects:
         _p = cv.resize(trimPhotoToRect(frame, f), (120, 120))
         _p = cv.cvtColor(_p, cv.COLOR_BGR2GRAY)
-        _ret, tresh = cv.threshold(_p,50,255,cv.THRESH_BINARY)
-        faces.append(tresh)
-        drawFaceRect(frame,f)
-
-
+        img = Image.fromarray(_p, 'L')
+        img = img.convert("1")
+        img.save("test.png")
+        faces.append(np.array(img))
+        print(img)
+        drawFaceRect(frame, f)
 
     # gogoog ML here to frame if goodframe==true
     for face_id in range(len(faces)):
         match = detect(hopfieldNetwork, trainingData, faces[face_id], size)
-        out=match
+        out = match
 
         print("matched with label: ", match)
-        cv.putText(frame,str(out),(faceRects[face_id][0],faceRects[face_id][1]),cv.FONT_HERSHEY_COMPLEX_SMALL,1,(255,0, 0))
-        #frame = faces[face_id]
+        cv.putText(frame, str(out), (faceRects[face_id][0], faceRects[face_id][1]), cv.FONT_HERSHEY_COMPLEX_SMALL, 1,
+                   (255, 0, 0))
+        # frame = faces[face_id]
 
     screen.set_data(frame)
     plt.pause(0.1)
@@ -119,6 +125,5 @@ while True:
         cv2.destroyAllWindows()
         screen.close()
         break
-
 
 # cap.release()
