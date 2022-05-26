@@ -12,6 +12,7 @@ f_ind = 0
 
 
 def detect(hopfieldNetwork, training_data, _input, n):
+    _input = np.where(_input <= 0, 1, -1)
     im = Image.fromarray(_input)
     im.save("detect.png")
     hopfieldNetwork.set_initial_neurons_state(convert(_input, n))
