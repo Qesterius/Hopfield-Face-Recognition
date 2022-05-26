@@ -24,7 +24,7 @@ def init():
         directory = ["data/lukasz", "data/kamil", "data/mateusz"]
         hopfieldNet = HopfieldNetwork(size ** 2)
         pathList = [join(dire, f) for dire in directory for inde, f in enumerate(listdir(dire)) if
-                    isfile(join(dire, f)) and inde < 4]
+                    isfile(join(dire, f)) and inde < 1]
         trained = train(hopfieldNet, pathList, size)
         numpy.save("networks/data2.npy", trained)
         numpy.save("networks/size2.npy", size)
@@ -102,7 +102,7 @@ while True:
         _p = cv.cvtColor(_p, cv.COLOR_BGR2GRAY)
         img = Image.fromarray(_p, 'L')
         img = img.convert("1")
-        img.save("test.png")
+        img.save("camera.png")
         faces.append(np.array(img))
         print(img)
         drawFaceRect(frame, f)
