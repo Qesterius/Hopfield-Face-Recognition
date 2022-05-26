@@ -2,6 +2,7 @@ import time
 
 import cv2
 import cv2 as cv
+import imageio.core.request
 import matplotlib.pyplot as plt
 
 from hopfieldnetwork import *
@@ -101,9 +102,12 @@ goodFrame = False
 
 trainingData, hopfieldNetwork, size = init()
 prev_time = 0
-frame_rate = 1
+frame_rate = 0.2
 while True:
-    ret, frame = cap.read()
+    ret,frame =cap.read()
+    cap.get()
+    for __ in range(5):
+        ret, frame = cap.read()
     print(type(frame))
     if not ret:
         print("Can't receive frame (stream end?). Exiting ...")
@@ -142,9 +146,8 @@ while True:
             # frame = faces[face_id]
 
         ax[0].imshow(frame)
-        if type(frame2) == type(Image):
-            ax[1].imshow(frame2)
         if len(frame3) != 0:
+            ax[1].imshow(frame2)
             ax[2].imshow(frame3)
         plt.pause(0.1)
         plt.draw()
