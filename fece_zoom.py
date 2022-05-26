@@ -1,3 +1,5 @@
+import time
+
 import cv2
 import cv2 as cv
 import matplotlib.pyplot as plt
@@ -11,7 +13,7 @@ from training import train
 from detect import detect
 import numpy
 
-load = False
+load = True
 cascPath = "haarcascade_frontalface_default.xml"
 
 
@@ -73,6 +75,15 @@ def drawFaceRect(img, rect):
     return img
 
 
+def matchInterpret(match):
+    if match == 0:
+        return "Kamil"
+    if match == 1:
+        return "Lukasz"
+    if match == 2:
+        return "Mateusz"
+
+
 plt.ion()
 
 cap = cv.VideoCapture(0)
@@ -81,49 +92,66 @@ if not cap.isOpened():
     exit()
 ret, frame = cap.read()
 img = frame
-screen = plt.imshow(img)
+fig, ax = plt.subplots(1, 3)
+for a in ax:
+    a.set_axis_off()
+screen = ax[0].imshow(img)
 plt.show()
 goodFrame = False
 
 trainingData, hopfieldNetwork, size = init()
-
+prev_time = 0
+frame_rate = 1
 while True:
     ret, frame = cap.read()
     print(type(frame))
     if not ret:
         print("Can't receive frame (stream end?). Exiting ...")
         exit()
+    time_elapsed = time.time() - prev_time
+    print("time", time_elapsed)
 
-    faceRects = getFaces(frame)
-    faces = []
+    if time_elapsed > 1. / frame_rate:
+        prev = time.time()
 
-    for f in faceRects:
-        _p = cv.resize(trimPhotoToRect(frame, f), (120, 120))
-        _p = cv.cvtColor(_p, cv.COLOR_BGR2GRAY)
-        img = Image.fromarray(_p, 'L')
-        img = img.convert("1")
-        img.save("camera.png")
-        faces.append(np.array(img))
-        print(img)
-        drawFaceRect(frame, f)
+        faceRects = getFaces(frame)
+        faces = []
+        frame2 = []
+        frame3 = []
 
-    # gogoog ML here to frame if goodframe==true
-    for face_id in range(len(faces)):
-        match = detect(hopfieldNetwork, trainingData, faces[face_id], size)
-        out = match
+        for f in faceRects:
+            _p = cv.resize(trimPhotoToRect(frame, f), (120, 120))
+            _p = cv.cvtColor(_p, cv.COLOR_BGR2GRAY)
+            img = Image.fromarray(_p, 'L')
+            img = img.convert("1")
+            frame2 = img
+            img.save("camera.png")
+            faces.append(np.array(img))
+            print(img)
+            drawFaceRect(frame, f)
 
-        print("matched with label: ", match)
-        cv.putText(frame, str(out), (faceRects[face_id][0], faceRects[face_id][1]), cv.FONT_HERSHEY_COMPLEX_SMALL, 1,
-                   (255, 0, 0))
-        # frame = faces[face_id]
+        # gogoog ML here to frame if goodframe==true
+        for face_id in range(len(faces)):
+            match = detect(hopfieldNetwork, trainingData, faces[face_id], size)
+            out = matchInterpret(match)
+            frame3 = np.reshape(trainingData[match], (120, 120))
+            print("matched with label: ", matchInterpret(match))
+            cv.putText(frame, str(out), (faceRects[face_id][0], faceRects[face_id][1]), cv.FONT_HERSHEY_COMPLEX_SMALL,
+                       1,
+                       (255, 0, 0))
+            # frame = faces[face_id]
 
-    screen.set_data(frame)
-    plt.pause(0.1)
-    plt.draw()
-    goodFrame = False
-    if cv.waitKey(1) == ord('q'):
-        cv2.destroyAllWindows()
-        screen.close()
-        break
+        ax[0].imshow(frame)
+        if type(frame2) == type(Image):
+            ax[1].imshow(frame2)
+        if len(frame3) != 0:
+            ax[2].imshow(frame3)
+        plt.pause(0.1)
+        plt.draw()
+        goodFrame = False
+        if cv.waitKey(1) == ord('q'):
+            cv2.destroyAllWindows()
+            plt.close()
+            break
 
 # cap.release()
